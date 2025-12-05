@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巴拉福特聰明組合 - 完整版 (9注生成)</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #d9534f;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .combination-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .combination-card {
+            background-color: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .combination-numbers {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .number-ball {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #d9534f;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .consecutive {
+            background-color: #5cb85c;
+            transform: scale(1.1);
+        }
+
+        .generate-btn {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .generate-btn:hover {
+            background-color: #c9302c;
+        }
+
+        .generate-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .step-description {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #5cb85c;
+        }
+
+        .completed-step {
+            background-color: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .debug-info {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .final-result {
+            background-color: #d1ecf1;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #17a2b8;
+        }
+
+        /* Special styling for 9th combination */
+        .ninth-combo {
+            border-color: #f0ad4e !important;
+            background-color: #fff8e1 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>巴拉福特聰明組合 - 完整版 (9注生成)</h1>
+        <h2>從1-49號碼中選擇48個號碼，分成9注，每注6個號碼，每注有連續數字（第9注包含剩餘號碼）</h2>
+
+        <div class="debug-info">
+            <h3>生成規則</h3>
+            <ul>
+                <li><strong>步驟1：</strong>從1-49號碼中選擇48個號碼，分成8注，每注6個號碼，每注有連續數字</li>
+                <li><strong>步驟2：</strong>第9注包含剩餘的號碼 + 任意5個號碼（確保有連續數字）</li>
+                <li><strong>結果：</strong>生成9個組合，使用所有49個號碼</li>
+            </ul>
+        </div>
+
+        <div class="button-container">
+            <div id="step1-desc" class="step-description">
+                <strong>步驟1：</strong>生成9個組合（48個號碼分成8注 + 第9注包含剩餘號碼）
+            </div>
+            <button id="step1-btn" class="generate-btn" onclick="generateStep1()">
+                <span id="step1-text">生成步驟1</span>
+                <span id="step1-loading" class="loading" style="display: none;"></span>
+            </button>
+        </div>
+
+        <div id="debug-container" class="debug-info" style="display: none;">
+            <h3>調試資訊</h3>
+            <div id="debug-content"></div>
+        </div>
+
+        <div id="combination-container" class="combination-grid">
+            <!-- Combinations will be generated here -->
+        </div>
+
+        <div id="final-result-container" class="final-result" style="display: none;">
+            <h3>最終結果</h3>
+            <div id="final-result-content"></div>
+        </div>
+
+        <div class="debug-info">
+            <p id="generation-time">準備就緒</p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for simplified version
+        var allNumbers = [];
+        var first48Numbers = [];
+        var remainingNumber = null;
+        var allCombinations = [];
+        var usedNumbersStep1 = [];
+
+        // Initialize numbers 1-49
+        function initNumbers() {
+            allNumbers = [];
+            for (var i = 1; i <= 49; i++) {
+                allNumbers.push(i);
+            }
+        }
+
+        // Debug function
+        function showDebugInfo(message, isError) {
+            var debugContainer = document.getElementById('debug-container');
+            var debugContent = document.getElementById('debug-content');
+
+            if (isError) {
+                debugContent.innerHTML += '<span class="error-message">' + message + '</span><br>';
+            } else {
+                debugContent.innerHTML += message + '<br>';
+            }
+
+            debugContainer.style.display = 'block';
+        }
+
+        // Step 1: Generate combinations 1-8 (SIMPLIFIED VERSION)
+        function generateStep1() {
+            // Show loading state
+            document.getElementById('step1-text').textContent = '生成中...';
+            document.getElementById('step1-loading').style.display = 'inline-block';
+            document.getElementById('debug-content').innerHTML = '';
+            document.getElementById('combination-container').innerHTML = '';
+            document.getElementById('final-result-container').style.display = 'none';
+
+            setTimeout(function () {
+                initNumbers();
+                showDebugInfo('初始化所有號碼: ' + allNumbers.join(', '));
+
+                // Step 1: Select 48 numbers from 1-49
+                first48Numbers = shuffleArray(allNumbers.slice()).slice(0, 48);
+                showDebugInfo('步驟1 - 選擇的48個號碼: ' + first48Numbers.join(', '));
+
+                // Find remaining number (should be exactly 1)
+                remainingNumber = null;
+                for (var j = 0; j < allNumbers.length; j++) {
+                    if (first48Numbers.indexOf(allNumbers[j]) === -1) {
+                        remainingNumber = allNumbers[j];
+                        break;
+                    }
+                }
+                showDebugInfo('步驟1 - 剩餘的號碼: ' + remainingNumber);
+
+                // Create 8 combinations with consecutive numbers
+                allCombinations = [];
+                usedNumbersStep1 = [];
+
+                // SIMPLIFIED APPROACH: Generate combinations that naturally have consecutive numbers
+                var attempts = 0;
+                var maxAttempts = 100;
+
+                while (attempts < maxAttempts) {
+                    attempts++;
+                    allCombinations = [];
+                    usedNumbersStep1 = [];
+
+                    // Try a new shuffle
+                    var shuffledNumbers = shuffleArray(first48Numbers.slice());
+
+                    // Create 8 combinations
+                    var validCombinations = 0;
+                    for (var i = 0; i < 8; i++) {
+                        var comboNumbers = shuffledNumbers.slice(i * 6, (i + 1) * 6).sort(function (a, b) { return a - b; });
+
+                        // Check if this combination has consecutive numbers
+                        if (hasConsecutiveNumbers(comboNumbers)) {
+                            // Add to used numbers
+                            for (var k = 0; k < comboNumbers.length; k++) {
+                                usedNumbersStep1.push(comboNumbers[k]);
+                            }
+                            allCombinations.push(comboNumbers);
+                            validCombinations++;
+                        } else {
+                            // This combination doesn't have consecutive numbers, try again
+                            break;
+                        }
+                    }
+
+                    // If we have 8 valid combinations, we're done
+                    if (validCombinations === 8) {
+                        break;
+                    }
+
+                    // If we've tried many times, we'll force create consecutive numbers
+                    if (attempts >= maxAttempts / 2) {
+                        showDebugInfo('多次嘗試後未找到自然連續數字，強制創建...', true);
+                        allCombinations = [];
+                        usedNumbersStep1 = [];
+
+                        for (var i = 0; i < 8; i++) {
+                            var comboNumbers = shuffledNumbers.slice(i * 6, (i + 1) * 6).sort(function (a, b) { return a - b; });
+
+                            // Force create consecutive numbers if needed
+                            comboNumbers = forceCreateConsecutiveNumbers(comboNumbers);
+
+                            // Add to used numbers
+                            for (var k = 0; k < comboNumbers.length; k++) {
+                                usedNumbersStep1.push(comboNumbers[k]);
+                            }
+                            allCombinations.push(comboNumbers);
+                        }
+                        break;
+                    }
+                }
+
+                // Verify all 48 numbers are used exactly once
+                usedNumbersStep1.sort(function (a, b) { return a - b; });
+                var allNumbersUsed = true;
+                var missingNumbers = [];
+
+                for (var m = 0; m < first48Numbers.length; m++) {
+                    if (usedNumbersStep1.indexOf(first48Numbers[m]) === -1) {
+                        missingNumbers.push(first48Numbers[m]);
+                        allNumbersUsed = false;
+                    }
+                }
+
+                if (allNumbersUsed) {
+                    showDebugInfo('步驟1成功: 所有48個號碼都被正確使用，無缺少號碼！', false);
+                } else {
+                    showDebugInfo('步驟1錯誤: 缺少號碼: ' + missingNumbers.join(', '), true);
+                    showDebugInfo('重新生成中...', true);
+                    // Retry the entire process
+                    generateStep1();
+                    return;
+                }
+
+                // Generate the 9th combination with remaining number
+                var ninthCombination = generateNinthCombination();
+                allCombinations.push(ninthCombination);
+
+                // Display all 9 combinations
+                displayCombinations(allCombinations);
+
+                // Show final result
+                document.getElementById('step1-desc').className = 'step-description completed-step';
+                document.getElementById('step1-text').textContent = '步驟1完成 ✓';
+                document.getElementById('step1-loading').style.display = 'none';
+
+                var finalResult = document.getElementById('final-result-content');
+                finalResult.innerHTML = '<p><strong>完整版結果：</strong></p>' +
+                    '<p>步驟1: 生成組合1-8 (48個號碼 → 8個組合)</p>' +
+                    '<p>步驟2: 第9注包含剩餘號碼 ' + remainingNumber + ' + 5個隨機號碼</p>' +
+                    '<p>第9注: ' + ninthCombination.join(', ') + '</p>' +
+                    '<p><strong>總共生成: 9個組合，每個組合都有連續數字</strong></p>' +
+                    '<p><strong>使用所有49個號碼，無重複</strong></p>';
+                document.getElementById('final-result-container').style.display = 'block';
+
+                document.getElementById('generation-time').textContent = '生成時間: ' + new Date().toLocaleString();
+
+            }, 100);
+        }
+
+        // Function to generate the 9th combination with remaining number + 5 additional numbers
+        function generateNinthCombination() {
+            showDebugInfo('開始生成第9注，包含剩餘號碼: ' + remainingNumber);
+
+            // Start with the remaining number
+            var ninthCombo = [remainingNumber];
+
+            // We need 5 more numbers to make 6 total
+            var availableNumbers = allNumbers.filter(function (num) {
+                return num !== remainingNumber;
+            });
+
+            // Select 5 random numbers from the remaining pool
+            var additionalNumbers = shuffleArray(availableNumbers.slice()).slice(0, 5);
+
+            // Combine with remaining number
+            ninthCombo = ninthCombo.concat(additionalNumbers);
+            ninthCombo.sort(function (a, b) { return a - b; });
+
+            showDebugInfo('第9注初始組合: ' + ninthCombo.join(', '));
+
+            // Ensure this combination has consecutive numbers while preserving the remaining number
+            if (!hasConsecutiveNumbers(ninthCombo)) {
+                showDebugInfo('第9注沒有連續數字，創建連續數字同時保留剩餘號碼...');
+                ninthCombo = createConsecutiveWithRemainingNumber(ninthCombo, remainingNumber);
+                showDebugInfo('第9注修正後: ' + ninthCombo.join(', '));
+            }
+
+            return ninthCombo;
+        }
+
+        // Special function to create consecutive numbers while preserving the remaining number
+        function createConsecutiveWithRemainingNumber(combo, remainingNum) {
+            // Make sure the remaining number is always included
+            if (combo.indexOf(remainingNum) === -1) {
+                // If somehow the remaining number was removed, add it back
+                combo.push(remainingNum);
+                combo.sort(function (a, b) { return a - b; });
+            }
+
+            // Find the best place to create consecutive numbers around the remaining number
+            var remainingIndex = combo.indexOf(remainingNum);
+
+            // Try to create consecutive numbers near the remaining number
+            if (remainingIndex > 0 && remainingIndex < combo.length - 1) {
+                // Check if we can make the number before or after the remaining number consecutive
+                if (combo[remainingIndex + 1] - remainingNum > 1) {
+                    // Make the next number consecutive
+                    combo[remainingIndex + 1] = remainingNum + 1;
+                } else if (remainingNum - combo[remainingIndex - 1] > 1) {
+                    // Make the previous number consecutive
+                    combo[remainingIndex - 1] = remainingNum - 1;
+                }
+            }
+
+            // If still no consecutive numbers, create a consecutive pair elsewhere
+            if (!hasConsecutiveNumbers(combo)) {
+                // Find two numbers that are close and make them consecutive
+                for (var i = 0; i < combo.length - 1; i++) {
+                    if (combo[i + 1] - combo[i] === 2) {
+                        combo[i + 1] = combo[i] + 1;
+                        break;
+                    }
+                }
+            }
+
+            // Remove duplicates and ensure we have 6 unique numbers
+            var uniqueSet = {};
+            for (var m = 0; m < combo.length; m++) {
+                uniqueSet[combo[m]] = true;
+            }
+
+            var uniqueArray = [];
+            for (var num in uniqueSet) {
+                uniqueArray.push(parseInt(num));
+            }
+
+            // If we lost numbers due to deduplication, add them back
+            while (uniqueArray.length < 6) {
+                var missingNum = Math.floor(Math.random() * 49) + 1;
+                if (!uniqueSet[missingNum]) {
+                    uniqueSet[missingNum] = true;
+                    uniqueArray.push(missingNum);
+                }
+            }
+
+            // Ensure the remaining number is still present
+            if (uniqueArray.indexOf(remainingNum) === -1) {
+                // Find a number to replace with the remaining number
+                for (var k = 0; k < uniqueArray.length; k++) {
+                    if (uniqueArray[k] !== remainingNum && uniqueArray[k] !== remainingNum - 1 && uniqueArray[k] !== remainingNum + 1) {
+                        uniqueArray[k] = remainingNum;
+                        break;
+                    }
+                }
+            }
+
+            uniqueArray.sort(function (a, b) { return a - b; });
+            return uniqueArray;
+        }
+
+        function ensureConsecutiveNumbersForCombo(combo) {
+            if (hasConsecutiveNumbers(combo)) {
+                return combo;
+            }
+
+            // Find a position to insert consecutive numbers
+            var comboArray = combo.slice();
+            // Find two numbers that are close and make them consecutive
+            for (var i = 0; i < comboArray.length - 1; i++) {
+                if (comboArray[i + 1] - comboArray[i] === 2) {
+                    comboArray[i + 1] = comboArray[i] + 1;
+                    break;
+                }
+            }
+
+            // If still no consecutive numbers, add a consecutive pair
+            if (!hasConsecutiveNumbers(comboArray)) {
+                // Replace two random numbers with a consecutive pair
+                var indices = [];
+                for (var j = 0; j < comboArray.length; j++) {
+                    indices.push(j);
+                }
+                var replaceIndices = shuffleArray(indices).slice(0, 2);
+                var startNum = Math.floor(Math.random() * 48) + 1;
+                var consecutivePair = [startNum, startNum + 1];
+
+                for (var k = 0; k < replaceIndices.length; k++) {
+                    comboArray[replaceIndices[k]] = consecutivePair[k];
+                }
+
+                // Remove duplicates and ensure we have 6 unique numbers
+                var uniqueSet = {};
+                for (var m = 0; m < comboArray.length; m++) {
+                    uniqueSet[comboArray[m]] = true;
+                }
+
+                var uniqueArray = [];
+                for (var num in uniqueSet) {
+                    uniqueArray.push(parseInt(num));
+                }
+
+                while (uniqueArray.length < 6) {
+                    var missingNum = Math.floor(Math.random() * 49) + 1;
+                    if (!uniqueSet[missingNum]) {
+                        uniqueSet[missingNum] = true;
+                        uniqueArray.push(missingNum);
+                    }
+                }
+
+                return uniqueArray.sort(function (a, b) { return a - b; });
+            }
+
+            return comboArray.sort(function (a, b) { return a - b; });
+        }
+
+        function forceCreateConsecutiveNumbers(combo) {
+            // If already has consecutive numbers, return as is
+            if (hasConsecutiveNumbers(combo)) {
+                return combo;
+            }
+
+            // Find the best place to create consecutive numbers
+            var comboArray = combo.slice();
+            var bestGapIndex = 0;
+            var smallestGap = 100;
+
+            for (var i = 0; i < comboArray.length - 1; i++) {
+                var gap = comboArray[i + 1] - comboArray[i];
+                if (gap < smallestGap && gap > 1) {
+                    smallestGap = gap;
+                    bestGapIndex = i;
+                }
+            }
+
+            // Create consecutive numbers in the smallest gap
+            if (smallestGap <= 5) {
+                var middleNumber = comboArray[bestGapIndex] + 1;
+                comboArray[bestGapIndex + 1] = middleNumber;
+            }
+
+            return comboArray.sort(function (a, b) { return a - b; });
+        }
+
+        function hasConsecutiveNumbers(combination) {
+            for (var i = 0; i < combination.length - 1; i++) {
+                if (combination[i + 1] - combination[i] === 1) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function displayCombinations(combinations) {
+            var container = document.getElementById('combination-container');
+            container.innerHTML = '';
+
+            combinations.forEach(function (combo, index) {
+                // Find consecutive numbers for highlighting
+                var consecutiveIndices = [];
+                for (var i = 0; i < combo.length - 1; i++) {
+                    if (combo[i + 1] - combo[i] === 1) {
+                        consecutiveIndices.push(i, i + 1);
+                    }
+                }
+
+                // Generate number balls
+                var numberBalls = combo.map(function (num, idx) {
+                    if (consecutiveIndices.indexOf(idx) !== -1) {
+                        return '<div class="number-ball consecutive" title="相連數字">' + num + '</div>';
+                    } else {
+                        return '<div class="number-ball">' + num + '</div>';
+                    }
+                }).join('');
+
+                var card = document.createElement('div');
+                card.className = 'combination-card';
+
+                // Special styling for the 9th combination (contains remaining number)
+                var titleText = '組合 ' + (index + 1);
+                var descriptionText = '數字: ' + combo.join(', ');
+
+                if (index === 8) { // 9th combination (0-indexed)
+                    titleText = '組合 ' + (index + 1) + ' (包含剩餘號碼)';
+                    descriptionText = '數字: ' + combo.join(', ') + ' <strong>(包含剩餘號碼 ' + remainingNumber + ')</strong>';
+                    card.style.borderColor = '#f0ad4e';
+                    card.style.backgroundColor = '#fff8e1';
+                }
+
+                card.innerHTML = '<h3>' + titleText + '</h3>' +
+                    '<div class="combination-numbers">' + numberBalls + '</div>' +
+                    '<p>' + descriptionText + '</p>';
+                container.appendChild(card);
+            });
+        }
+
+        // Safari-compatible Fisher-Yates shuffle
+        function shuffleArray(array) {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+            return array;
+        }
+
+        // Initialize on page load
+        window.onload = function () {
+            showDebugInfo('準備就緒 - 點擊步驟1按鈕開始', false);
+        };
+    </script>
+</body>
+
+</html>
